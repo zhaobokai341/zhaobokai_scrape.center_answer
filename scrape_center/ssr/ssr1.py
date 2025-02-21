@@ -1,3 +1,5 @@
+#作者：赵博凯
+#语言：Python
 import logging
 import requests
 import re
@@ -9,13 +11,19 @@ from os import mkdir
 from retrying import retry
 from shutil import rmtree
 
+# 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[RichHandler()])
+# 安装traceback
 install(show_locals=True)
+# 定义请求的url
 url = "https://ssr1.scrape.center/page/"
+# 定义请求的页数
 page = 10
+# 定义请求的超时时间
 timeout = 10
 
 
+# 发送请求
 def request(url):
     try:
         logging.info(f'requesting {url}...')
@@ -31,6 +39,7 @@ def request(url):
     return response.text
 
 
+# 获取链接
 def get_links(text):
     logging.info('Getting links...')
     links = re.findall(r'<a.*href="(.*)".*class="name">', str(text))
@@ -39,6 +48,7 @@ def get_links(text):
     logging.info(f'links:{links}')
     return links
 
+# 获取数据
 @retry(stop_max_attempt_number=3, retry_on_result=lambda x: x is False)
 def get_data(text):
     try:
@@ -63,6 +73,7 @@ def get_data(text):
         return False
 
 
+# 保存数据
 def save_data(data):
     logging.info('Saving data...')
     try:
@@ -78,6 +89,7 @@ def save_data(data):
         logging.error(f'Save failed:{str(e)}')
 
 
+# 主函数
 def main(page):
     text = request(url + str(page))
     if text:
